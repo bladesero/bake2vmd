@@ -1,6 +1,6 @@
 import bpy
 import traceback
-from bake2vmd import Bake2Vmd_utils
+from.import (Bake2Vmd_utils)
 
 bl_info = {
     "name": "Bake2Vmd",
@@ -24,7 +24,7 @@ from bpy.props import (StringProperty,
 from bpy.types import (Panel,
                        Operator,
                        PropertyGroup,
-                       )
+                       )   
 
 # ------------------------------------------------------------------------
 #    store properties in the active scene
