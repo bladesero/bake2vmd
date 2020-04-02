@@ -1,4 +1,5 @@
 import bpy
+from bpy.types import Panel, Menu, UIList
 import traceback
 from.import (Bake2Vmd_utils)
 
@@ -6,13 +7,14 @@ bl_info = {
     "name": "Bake2Vmd",
     "description": "Bake physics to MMD armature animation",
     "author": "Blade Sero",
-    "version": (0, 0, 1),
-    "blender": (2, 79, 0),
-    "location": "Properties > Object",
-    "warning": "This is an unstable version",
+    "version": (0, 0, 2),
+    "blender": (2, 80, 0),
+    "location": "View3D > Tool Shelf > MMD Tools Panel",
+    "warning": "",
     "wiki_url": "https://github.com/bladesero/bake2vmd/blob/master/README.md",
     "tracker_url": "https://github.com/bladesero/bake2vmd/issues",
-    "category": "Object" }
+    "category": "Object" 
+    }
 
 from bpy.props import (StringProperty,
                        BoolProperty,
@@ -29,25 +31,10 @@ from bpy.types import (Panel,
 # ------------------------------------------------------------------------
 #    store properties in the active scene
 # ------------------------------------------------------------------------
-class BakePhysicsSettings(PropertyGroup):
-    
-    start_frame = IntProperty(
-        name = "Start Frame",
-        description="The baking progress start frame",
-        default = 1,
-        )
-        
-    end_frame = IntProperty(
-        name = "End Frame",
-        description="The baking progress end frame",
-        default = 120,
-        )
-    
-    frame_step = IntProperty(
-        name = "Frame Step",
-        description="The baking progress frame step(more steps more deviations)",
-        default = 1,
-        )
+class BakePhysicsSettings(bpy.types.PropertyGroup):
+    start_frame: bpy.props.IntProperty(name="Start Frame",description="The baking progress start frame",default = 1)
+    end_frame: bpy.props.IntProperty(name = "End Frame",description="The baking progress end frame",default = 120)
+    frame_step: bpy.props.IntProperty(name = "Frame Step",description="The baking progress frame step(more steps more deviations)",default = 1)
 
 # ------------------------------------------------------------------------
 #    operators
@@ -76,19 +63,21 @@ class Bake2Vmd(bpy.types.Operator):
 # ------------------------------------------------------------------------
 #    panel
 # ------------------------------------------------------------------------
-class HelloWorldPanel(bpy.types.Panel):
+class HelloWorldPanel(Panel):
     """Creates a Panel in the Object properties window"""
     bl_label = "Bake to Vmd"
     bl_idname = "OBJECT_bakevmd"
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = "object"
+    bl_space_type = 'VIEW_3D'
+    bl_category = "MMDExtra"
+    bl_region_type = 'UI'
+    bl_context = "objectmode"
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         layout = self.layout
 
         obj = context.object
-        toolprops=context.scene.bakevmdToolProps
+        toolprops=context.scene.bakevmd_settings
 
         row = layout.row()
         if(obj.type == 'ARMATURE'):
@@ -114,9 +103,16 @@ class HelloWorldPanel(bpy.types.Panel):
 #    register
 # ------------------------------------------------------------------------
 def register():
-    bpy.utils.register_module(__name__)
-    bpy.types.Scene.bakevmdToolProps = PointerProperty(type=BakePhysicsSettings)
+    bpy.utils.register_class(BakePhysicsSettings)
+    bpy.utils.register_class(Bake2Vmd)
+    bpy.utils.register_class(HelloWorldPanel)
+    bpy.types.Scene.bakevmd_settings = bpy.props.PointerProperty(type=BakePhysicsSettings)
 
 def unregister():
-    bpy.utils.unregister_module(__name__)
-    del bpy.types.Scene.bakevmdToolProps
+    bpy.utils.unregister_class(BakePhysicsSettings)
+    bpy.utils.unregister_class(Bake2Vmd)
+    bpy.utils.unregister_class(HelloWorldPanel)
+    del bpy.types.Scene.bakevmd_settings
+
+if __name__ == "__main__":
+    register()
